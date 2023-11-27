@@ -1,0 +1,48 @@
+version: '3.9'
+services:
+  admin:
+    build:
+      context: ./super-admin
+      dockerfile: Dockerfile.dev
+    command: npm run dev
+    container_name: app-users-admin-local
+    stdin_open: true
+    tty: true
+    ports:
+      - '3001:3001'
+    volumes:
+      - ./super-admin:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - postgres
+    networks:
+      - app-users-network
+
+  api:
+    build:
+      context: ./super-api
+      dockerfile: Dockerfile.dev
+    container_name: app-users-api-local
+    #    command: node ./dist/main.js
+    command: npm run start:dev
+    restart: unless-stopped
+    stdin_open: true
+    volumes:
+      - ./super-api/src:/usr/src/app/src
+    tty: true
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    networks:
+      - app-users-network
+
+volumes:
+  postgres-data:
+  pgadmin-data:
+
+networks:
+  app-users-network:
+    driver: bridge

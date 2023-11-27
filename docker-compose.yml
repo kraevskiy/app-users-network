@@ -1,0 +1,69 @@
+version: '3.9'
+services:
+
+  admin:
+    build:
+      context: ./super-admin
+      dockerfile: Dockerfile
+    container_name: app-users-admin
+    command: serve -s dist -l 3001
+    restart: unless-stopped
+    ports:
+      - '3001:3001'
+    depends_on:
+      - postgres
+      - api
+    networks:
+      - app-users-network
+
+  api:
+    build:
+      context: ./super-api
+      dockerfile: Dockerfile
+    container_name: app-users-api
+#    command: node ./dist/main.js
+    command: npm run start:prod
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    networks:
+      - app-users-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: app-users-pgadmin
+    depends_on:
+      - postgres
+    ports:
+      - "5555:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:latest
+    container_name: app-users-postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - app-users-network
+
+volumes:
+  postgres-data:
+  pgadmin-data:
+
+networks:
+  app-users-network:
+    driver: bridge

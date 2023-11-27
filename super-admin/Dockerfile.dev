@@ -1,0 +1,17 @@
+FROM node:20-alpine
+WORKDIR /usr/src/app
+COPY package.json ./
+RUN npm install
+#COPY entrypoint.sh /entrypoint.sh
+#RUN chmod +x /entrypoint.sh
+
+#ENTRYPOINT ["/entrypoint.sh"]
+COPY . .
+#COPY .eslintrc.cjs ./
+#COPY .prettierrc.cjs ./
+#COPY index.html ./
+#COPY tsconfig.json ./
+#COPY tsconfig.node.json ./
+#COPY vite.config.ts ./
+#COPY public/* ./public
+#COPY src/* ./src
