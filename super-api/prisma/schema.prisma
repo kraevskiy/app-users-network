@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int          @id @default(autoincrement())
+  email         String       @unique
+  first_name    String?
+  last_name     String?
+  address       String?
+  city          String?
+  postal_code   String?
+  phone         String?
+  country       String?
+  passwordHash  String?
+  payments      Payment[]
+  role          UserRoleType
+  cards         Card[]
+  subscriptions Int[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+enum UserRoleType {
+  ADMIN
+  USER
+  MANAGER
+}
+
+model Card {
+  id              Int       @id @default(autoincrement())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  cvv             String
+  number          String
+  expiration_date String
+  token           String?
+  type            CardType?
+  User            User      @relation(fields: [user_id], references: [id])
+  user_id         Int
+}
+
+enum CardType {
+  VISA
+  MASTERCARD
+  AMERICAN_EXPRESS
+  DISCOVER
+  DINERS_CLUB
+  JCB
+  UNIONPAY
+}
+
+model Subscription {
+  id                Int                         @id @default(autoincrement())
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
+  name              String
+  price             Int
+  currency          String
+  api_key           String?
+  trial_period_days Int?
+  credential        SubscriptionCredentialType?
+}
+
+enum SubscriptionCredentialType {
+  BASIC
+  STANDART
+  FULL
+}
+
+model Payment {
+  id        Int            @id @default(autoincrement())
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  type      PaymentType
+  count     Int
+  currency  String
+  status    PaymentStatus?
+  card_id   Int?
+  User      User?          @relation(fields: [user_id], references: [id])
+  user_id   Int?
+}
+
+enum PaymentType {
+  Stripe
+}
+
+enum PaymentStatus {
+  succeeded
+  canceled
+  processing
+}
+
+model Country {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  name       String
+  iso_2_code String   @unique
+  iso_3_code String?
+}

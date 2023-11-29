@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+RUN npm i -g @nestjs/cli
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install app dependencies
+RUN npm install
+COPY . .
+
+RUN npx prisma generate
+RUN #npx prisma migrate deploy --schema=./prisma/schema.prisma
+
+EXPOSE 3000
+
